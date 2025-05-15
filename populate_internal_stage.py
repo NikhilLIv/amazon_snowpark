@@ -30,7 +30,7 @@ def traverse_directory(directory,file_extension) -> list:
     local_file_path = []
     file_name = []  # List to store CSV file paths
     partition_dir = []
-    print(directory)
+    # print(directory)
     for root, dirs, files in os.walk(directory):
         for file in files:
             if file.endswith(file_extension):
@@ -52,7 +52,7 @@ def main():
     json_file_name, json_partition_dir , json_local_file_path= traverse_directory(directory_path,'.json')
     stage_location = '@sales_dwh.source.my_internal_stg'
 
-    # print(csv_file_name)
+    # # print(csv_file_name)
     
     csv_index = 0
     for file_element in csv_file_name:
@@ -78,7 +78,7 @@ def main():
         parquet_index+=1
     
     json_index = 0
-    for file_element in parquet_file_name:
+    for file_element in json_file_name:
 
         put_result = ( 
                         session.file.put( 
