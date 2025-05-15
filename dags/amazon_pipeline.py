@@ -10,10 +10,11 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Add script directory to path
-script_path = Path("D:/amazon_snowpark")
+script_path = Path("D:/amazon_snowpark") #my local path for python scripts
 sys.path.append(str(script_path))
 
-from populate_internal_stage import main
+from populate_internal_stage import populate_internal_stage
+from populate_source_tables_from_stage import populate_source_tables
 
 default_args = {
     'start_date': datetime(2023, 1, 1),
@@ -28,7 +29,12 @@ with DAG(
 
     first_step = PythonOperator(
         task_id='populate_internal_stage',
-        python_callable=main,
+        python_callable=populate_internal_stage,
     )
     
-    first_step
+    second_step = PythonOperator(
+        task_id='populate_source_tables',
+        python_callable=populate_source_tables,
+    )
+    
+    first_step >> second_step

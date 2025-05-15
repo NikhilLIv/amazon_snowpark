@@ -43,7 +43,7 @@ def traverse_directory(directory,file_extension) -> list:
 
     return file_name,partition_dir,local_file_path
 
-def main():
+def populate_internal_stage():
     # Specify the directory path to traverse
     session=get_snowpark_session()
     directory_path = '3-region-sales-data'
@@ -60,7 +60,7 @@ def main():
                         session.file.put( 
                         csv_local_file_path[csv_index], 
                         stage_location+"/"+csv_partition_dir[csv_index], 
-                        auto_compress=False, overwrite=True, parallel=10)
+                        auto_compress=False, overwrite=False, parallel=10)
                     )
         #put_result(file_element," => ",put_result[0].status)
         csv_index+=1
@@ -72,7 +72,7 @@ def main():
                         session.file.put( 
                         parquet_local_file_path[parquet_index], 
                         stage_location+"/"+parquet_partition_dir[parquet_index], 
-                        auto_compress=False, overwrite=True, parallel=10)
+                        auto_compress=False, overwrite=False, parallel=10)
                     )
         #put_result(file_element," => ",put_result[0].status)
         parquet_index+=1
@@ -84,7 +84,7 @@ def main():
                         session.file.put( 
                         json_local_file_path[json_index], 
                         stage_location+"/"+json_partition_dir[json_index], 
-                        auto_compress=False, overwrite=True, parallel=10)
+                        auto_compress=False, overwrite=False, parallel=10)
                     )
         #put_result(file_element," => ",put_result[0].status)
         json_index+=1  
@@ -93,4 +93,4 @@ def main():
     
     
 if __name__ == '__main__':
-    main()
+    populate_internal_stage()

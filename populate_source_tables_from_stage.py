@@ -1,10 +1,14 @@
 import sys
 import logging
-
+import os
 from snowflake.snowpark import Session, DataFrame
 from snowflake.snowpark.types import StructType, StringType, StructField, StringType,LongType,DecimalType,DateType,TimestampType
 from snowflake.snowpark.functions import col,lit,row_number, rank
 from snowflake.snowpark import Window
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '', '.env'))
 
 # initiate logging at info level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%I:%M:%S')
@@ -12,7 +16,17 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 # snowpark session
 def get_snowpark_session() -> Session:
     # creating snowflake session object
-    return Session.builder.config("connection_name", "myconnection").create()  
+    connection_parameters = {
+        "account": os.getenv("SNOWFLAKE_ACCOUNT"),
+        "user": os.getenv("SNOWFLAKE_USER"),
+        "ROLE": os.getenv("SNOWFLAKE_ROLE"),
+        "password": os.getenv("SNOWFLAKE_PASSWORD"),
+        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+        "database": os.getenv("SNOWFLAKE_DATABASE"),
+        "schema": os.getenv("SNOWFLAKE_SCHEMA")
+    }
+
+    return Session.builder.configs(connection_parameters).create()
 
 def ingest_in_sales(session)-> None:
     session.sql(" \
@@ -112,7 +126,7 @@ def ingest_fr_sales(session)-> None:
         '
         ).collect()
 
-def main():
+def populate_source_tables():
 
     #get the session object and get dataframe
     session = get_snowpark_session()
@@ -129,4 +143,4 @@ def main():
     session.close()
 
 if __name__ == '__main__':
-    main()
+    populate_source_tables()
