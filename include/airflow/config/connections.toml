@@ -1,0 +1,8 @@
+[myconnection]
+conn_type   = "snowflake"
+login       = "snowpark_user"
+password    = "Test@12$4"
+account     = "TSKCPBK-RUB12568"
+warehouse   = "SNOWPARK_ETL_WH"
+database    = "SALES_DWH"
+schema      = "source"
