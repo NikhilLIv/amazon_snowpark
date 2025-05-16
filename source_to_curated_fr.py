@@ -1,9 +1,13 @@
 import sys
 import logging
-
+import os
 from snowflake.snowpark import Session, DataFrame
 from snowflake.snowpark.functions import col,lit,row_number, rank
 from snowflake.snowpark import Window
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '', '.env'))
 
 # initiate logging at info level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%I:%M:%S')
@@ -11,7 +15,17 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 # snowpark session
 def get_snowpark_session() -> Session:
     # creating snowflake session object
-    return Session.builder.config("connection_name", "myconnection").create()     
+    connection_parameters = {
+        "account": os.getenv("SNOWFLAKE_ACCOUNT"),
+        "user": os.getenv("SNOWFLAKE_USER"),
+        "ROLE": os.getenv("SNOWFLAKE_ROLE"),
+        "password": os.getenv("SNOWFLAKE_PASSWORD"),
+        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+        "database": os.getenv("SNOWFLAKE_DATABASE"),
+        "schema": os.getenv("SNOWFLAKE_SCHEMA")
+    }
+
+    return Session.builder.configs(connection_parameters).create()  
 
 def filter_dataset(df, column_name, filter_criterian) -> DataFrame:
     # Payment Status = Paid
@@ -20,7 +34,7 @@ def filter_dataset(df, column_name, filter_criterian) -> DataFrame:
 
     return return_df
 
-def main():
+def source_to_curated_fr():
 
     #get the session object and get dataframe
     session = get_snowpark_session()
@@ -44,6 +58,8 @@ def main():
     print(sales_with_forext_df.count())
     unique_orders = sales_with_forext_df.with_column('order_rank',rank().over(Window.partitionBy(col("order_dt")).order_by(col('_metadata_last_modified').desc()))).filter(col("order_rank")==1).select(col('SALES_ORDER_KEY').alias('unique_sales_order_key'))
     final_sales_df = unique_orders.join(sales_with_forext_df,unique_orders['unique_sales_order_key']==sales_with_forext_df['SALES_ORDER_KEY'],join_type='inner')
+    target_sales_df = session.sql("select * from sales_dwh.curated.fr_sales_order")
+    final_sales_df = final_sales_df.join(target_sales_df,final_sales_df['SALES_ORDER_KEY']==target_sales_df['SALES_ORDER_KEY'],join_type='leftanti')
     final_sales_df = final_sales_df.select(
         col('SALES_ORDER_KEY'),
         col('ORDER_ID'),
@@ -69,9 +85,9 @@ def main():
         col('shipping_address')
     )
 
-    #final_sales_df.show(5)
+    final_sales_df.show(5)
     final_sales_df.write.save_as_table("sales_dwh.curated.fr_sales_order",mode="append")
     session.close()
     
 if __name__ == '__main__':
-    main()
+    source_to_curated_fr()

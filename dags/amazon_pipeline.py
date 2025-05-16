@@ -15,6 +15,9 @@ sys.path.append(str(script_path))
 
 from populate_internal_stage import populate_internal_stage
 from populate_source_tables_from_stage import populate_source_tables
+from source_to_curated_fr import source_to_curated_fr
+from source_to_curated_in import source_to_curated_in
+from source_to_curated_us import source_to_curated_us
 
 default_args = {
     'start_date': datetime(2023, 1, 1),
@@ -37,4 +40,22 @@ with DAG(
         python_callable=populate_source_tables,
     )
     
+    third1_step = PythonOperator(
+        task_id='source_to_curated_fr',
+        python_callable=source_to_curated_fr,
+    )
+    
+    third2_step = PythonOperator(
+        task_id='source_to_curated_in',
+        python_callable=source_to_curated_in,
+    )
+    
+    third3_step = PythonOperator(
+        task_id='source_to_curated_us',
+        python_callable=source_to_curated_us,
+    )
+    
     first_step >> second_step
+    second_step >> third1_step
+    second_step >> third2_step
+    second_step >> third3_step
