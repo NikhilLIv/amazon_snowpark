@@ -14,17 +14,18 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 # snowpark session
 def get_snowpark_session() -> Session:
     # creating snowflake session object
-    connection_parameters = {
-        "account": os.getenv("SNOWFLAKE_ACCOUNT"),
-        "user": os.getenv("SNOWFLAKE_USER"),
-        "ROLE": os.getenv("SNOWFLAKE_ROLE"),
-        "password": os.getenv("SNOWFLAKE_PASSWORD"),
-        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
-        "database": os.getenv("SNOWFLAKE_DATABASE"),
-        "schema": os.getenv("SNOWFLAKE_SCHEMA")
-    }
+    # connection_parameters = {
+    #     "account": os.getenv("SNOWFLAKE_ACCOUNT"),
+    #     "user": os.getenv("SNOWFLAKE_USER"),
+    #     "ROLE": os.getenv("SNOWFLAKE_ROLE"),
+    #     "password": os.getenv("SNOWFLAKE_PASSWORD"),
+    #     "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+    #     "database": os.getenv("SNOWFLAKE_DATABASE"),
+    #     "schema": os.getenv("SNOWFLAKE_SCHEMA")
+    # }
 
-    return Session.builder.configs(connection_parameters).create()
+    # return Session.builder.configs(connection_parameters).create()
+    return Session.builder.config("connection_name", "myconnection").create()
 
 def traverse_directory(directory,file_extension) -> list:
     local_file_path = []

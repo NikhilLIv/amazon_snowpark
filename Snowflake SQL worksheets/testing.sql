@@ -1,0 +1,1 @@
+select * from fr_sales_order;
