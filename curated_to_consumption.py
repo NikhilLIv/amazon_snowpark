@@ -208,12 +208,12 @@ def main():
 
     all_sales_df = in_sales_df.union(us_sales_df).union(fr_sales_df)
 
-    # create_date_dim(all_sales_df,session)       #date dimension
-    # create_region_dim(all_sales_df,session)     #region dimension
-    # create_product_dim(all_sales_df,session)    #product dimension
-    # create_promocode_dim(all_sales_df,session)  #promot code dimension
-    # create_customer_dim(all_sales_df,session)   #customer dimension
-    # create_payment_dim(all_sales_df,session)    #payment dimension
+    create_date_dim(all_sales_df,session)       #date dimension
+    create_region_dim(all_sales_df,session)     #region dimension
+    create_product_dim(all_sales_df,session)    #product dimension
+    create_promocode_dim(all_sales_df,session)  #promot code dimension
+    create_customer_dim(all_sales_df,session)   #customer dimension
+    create_payment_dim(all_sales_df,session)    #payment dimension
 
 
     date_dim_df = session.sql("select date_id_pk, order_dt from sales_dwh.consumption.date_dim")

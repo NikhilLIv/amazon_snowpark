@@ -15,17 +15,18 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 # snowpark session
 def get_snowpark_session() -> Session:
     # creating snowflake session object
-    connection_parameters = {
-        "account": os.getenv("SNOWFLAKE_ACCOUNT"),
-        "user": os.getenv("SNOWFLAKE_USER"),
-        "ROLE": os.getenv("SNOWFLAKE_ROLE"),
-        "password": os.getenv("SNOWFLAKE_PASSWORD"),
-        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
-        "database": os.getenv("SNOWFLAKE_DATABASE"),
-        "schema": os.getenv("SNOWFLAKE_SCHEMA")
-    }
+    # connection_parameters = {
+    #     "account": os.getenv("SNOWFLAKE_ACCOUNT"),
+    #     "user": os.getenv("SNOWFLAKE_USER"),
+    #     "ROLE": os.getenv("SNOWFLAKE_ROLE"),
+    #     "password": os.getenv("SNOWFLAKE_PASSWORD"),
+    #     "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+    #     "database": os.getenv("SNOWFLAKE_DATABASE"),
+    #     "schema": os.getenv("SNOWFLAKE_SCHEMA")
+    # }
 
-    return Session.builder.configs(connection_parameters).create() 
+    # return Session.builder.configs(connection_parameters).create() 
+    return Session.builder.config("connection_name", "myconnection").create()
 
 def filter_dataset(df, column_name, filter_criterian) -> DataFrame:
     # Payment Status = Paid
@@ -84,7 +85,7 @@ def source_to_curated_in():
         col('shipping_address')
     )
 
-    final_sales_df.show(5)
+    #final_sales_df.show(5)
     final_sales_df.write.save_as_table("sales_dwh.curated.in_sales_order",mode="append")
     session.close()
     

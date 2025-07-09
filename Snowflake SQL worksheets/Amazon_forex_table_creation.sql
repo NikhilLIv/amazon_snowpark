@@ -25,6 +25,6 @@ select
     to_decimal(t.$4,12,10) as usd2inr,
     to_decimal(t.$4,12,10) as usd2jp
 from 
-     @sales_dwh.source.my_internal_stg/exchange/exchange-rate.csv
+     @sales_dwh.source.my_internal_stg/exchange/exchange-rate-data.csv
      (file_format => 'sales_dwh.common.my_csv_format') t
 );

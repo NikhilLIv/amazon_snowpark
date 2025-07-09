@@ -15,17 +15,18 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 # snowpark session
 def get_snowpark_session() -> Session:
     # creating snowflake session object
-    connection_parameters = {
-        "account": os.getenv("SNOWFLAKE_ACCOUNT"),
-        "user": os.getenv("SNOWFLAKE_USER"),
-        "ROLE": os.getenv("SNOWFLAKE_ROLE"),
-        "password": os.getenv("SNOWFLAKE_PASSWORD"),
-        "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
-        "database": os.getenv("SNOWFLAKE_DATABASE"),
-        "schema": os.getenv("SNOWFLAKE_SCHEMA")
-    }
+    # connection_parameters = {
+    #     "account": os.getenv("SNOWFLAKE_ACCOUNT"),
+    #     "user": os.getenv("SNOWFLAKE_USER"),
+    #     "ROLE": os.getenv("SNOWFLAKE_ROLE"),
+    #     "password": os.getenv("SNOWFLAKE_PASSWORD"),
+    #     "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
+    #     "database": os.getenv("SNOWFLAKE_DATABASE"),
+    #     "schema": os.getenv("SNOWFLAKE_SCHEMA")
+    # }
 
-    return Session.builder.configs(connection_parameters).create()  
+    # return Session.builder.configs(connection_parameters).create()  
+    return Session.builder.config("connection_name", "myconnection").create()
 
 def filter_dataset(df, column_name, filter_criterian) -> DataFrame:
     # Payment Status = Paid
@@ -38,7 +39,7 @@ def source_to_curated_fr():
 
     #get the session object and get dataframe
     session = get_snowpark_session()
-    sales_df = session.sql("select * from us_sales_order")
+    sales_df = session.sql("select * from fr_sales_order")
 
     # apply filter to select only paid and delivered sale orders
     # select * from us_sales_order where PAYMENT_STATUS = 'Paid' and SHIPPING_STATUS = 'Delivered'
@@ -55,7 +56,7 @@ def source_to_curated_fr():
     # sales_with_forext_df.show(2)
 
     #de-duplication
-    print(sales_with_forext_df.count())
+    # print(sales_with_forext_df.count())
     unique_orders = sales_with_forext_df.with_column('order_rank',rank().over(Window.partitionBy(col("order_dt")).order_by(col('_metadata_last_modified').desc()))).filter(col("order_rank")==1).select(col('SALES_ORDER_KEY').alias('unique_sales_order_key'))
     final_sales_df = unique_orders.join(sales_with_forext_df,unique_orders['unique_sales_order_key']==sales_with_forext_df['SALES_ORDER_KEY'],join_type='inner')
     target_sales_df = session.sql("select * from sales_dwh.curated.fr_sales_order")
@@ -85,7 +86,7 @@ def source_to_curated_fr():
         col('shipping_address')
     )
 
-    final_sales_df.show(5)
+    # final_sales_df.show(5)
     final_sales_df.write.save_as_table("sales_dwh.curated.fr_sales_order",mode="append")
     session.close()
     

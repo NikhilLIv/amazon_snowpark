@@ -45,7 +45,7 @@ def source_to_curated_us():
     #sales_with_forext_df.show(2)
 
     #de-duplication
-    print(sales_with_forext_df.count())
+    #print(sales_with_forext_df.count())
     unique_orders = sales_with_forext_df.with_column('order_rank',rank().over(Window.partitionBy(col("order_dt")).order_by(col('_metadata_last_modified').desc()))).filter(col("order_rank")==1).select(col('SALES_ORDER_KEY').alias('unique_sales_order_key'))
     final_sales_df = unique_orders.join(sales_with_forext_df,unique_orders['unique_sales_order_key']==sales_with_forext_df['SALES_ORDER_KEY'],join_type='inner')
     target_sales_df = session.sql("select * from sales_dwh.curated.us_sales_order")
@@ -75,7 +75,7 @@ def source_to_curated_us():
         col('shipping_address')
     )
 
-    final_sales_df.show(5)
+    # final_sales_df.show(5)
     final_sales_df.write.save_as_table("sales_dwh.curated.us_sales_order",mode="append")
     session.close()
     
