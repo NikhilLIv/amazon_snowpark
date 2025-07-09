@@ -18,6 +18,7 @@ from populate_source_tables_from_stage import populate_source_tables
 from source_to_curated_fr import source_to_curated_fr
 from source_to_curated_in import source_to_curated_in
 from source_to_curated_us import source_to_curated_us
+from curated_to_consumption import create_star_schema
 
 default_args = {
     'start_date': datetime(2023, 1, 1),
@@ -54,8 +55,16 @@ with DAG(
         task_id='source_to_curated_us',
         python_callable=source_to_curated_us,
     )
+
+    final_step = PythonOperator(
+        task_id='curated_to_consumption',
+        python_callable=create_star_schema,
+    )
     
     first_step >> second_step
     second_step >> third1_step
     second_step >> third2_step
     second_step >> third3_step
+    third1_step >> final_step
+    third2_step >> final_step
+    third3_step >> final_step

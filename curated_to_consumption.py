@@ -198,7 +198,7 @@ def create_date_dim(all_sales_df, session) -> None:
     else:
         print("No insert ...Opps...")
 
-def main():
+def create_star_schema():
     #get the session object and get dataframe
     session = get_snowpark_session()
 
@@ -251,4 +251,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    create_star_schema()
