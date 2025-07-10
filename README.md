@@ -1,72 +1,150 @@
-# Amazon Sales Data Pipeline with Snowflake, Snowpark, and Astro (Airflow)
+
+# Amazon Sales Data Pipeline with Snowflake, Snowpark, and Airflow (Astro)
 
 ## 📈 Project Overview
 
-This repository contains an **end-to-end data engineering pipeline** using:
+This project demonstrates an **end-to-end data pipeline** using:
 
-- **Snowflake** (data warehousing, staging, transformation)
-- **Snowpark** (Python-based scalable transformations inside Snowflake)
-- **Astro (Astronomer Airflow)** for orchestration and scheduling
+- **Airflow (Astro)** for orchestration
+- **Snowflake & Snowpark** for scalable data processing
+- **Local Amazon sales CSV data** as the source
 
-The pipeline ingests **Amazon Sales Data** from **local CSV files** for:
-- India (`amazon_sales_india.csv`)
-- France (`amazon_sales_france.csv`)
-- US (`amazon_sales_us.csv`)
-
-and transforms them into a **curated star schema** in Snowflake for analytics and reporting.
-
----
-
-## 🗂️ Pipeline Stages
-
-1. **Ingestion**: Upload local Amazon sales CSV files to a **Snowflake stage**.
-2. **Loading to Source Table**: Load data from the stage into **raw source tables**.
-3. **Curated Transformations**: Clean, enrich, and unify data using **Snowpark Python scripts**.
-4. **Star Schema Creation**: Load curated data into **fact and dimension tables**:
-   - `fact_sales`
-   - `dim_customer`
-   - `dim_product`
-   - `dim_date`
-5. **Orchestration with Astro**:
-   - Automated scheduling and execution using **Astro Airflow**
-   - Logging and monitoring
-   - Modular task separation for ingestion, transformation, and loading
+The pipeline **extracts Amazon sales data from your local system, uploads it to a Snowflake stage, transforms it using Snowpark, and loads it into Snowflake tables for analytics-ready consumption.**
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Snowflake**: Data warehouse for staging, transformation, and storage
-- **Snowpark (Python)**: In-database scalable transformations
-- **Astro (Astronomer Airflow)**: Orchestration and scheduling
-- **Python**: For Snowpark scripts and Airflow DAGs
+- **Airflow (Astro CLI)**: Orchestration
+- **Snowflake**: Cloud Data Warehouse
+- **Snowpark**: In-Snowflake processing
+- **Python**: ETL scripts
+- **Docker**: Containerization (via Astro)
+- **Git**: Version control
+
+---
+
+## 📂 Project Structure
+
+\`\`\`
+.
+├── dags/
+│   └── amazon_sales_pipeline.py        # Airflow DAG for orchestrating the pipeline
+├── include/
+│   └── sample_amazon_sales.csv         # Sample local sales data
+├── plugins/
+│   └── snowflake_helpers.py            # Helper functions for Snowflake connection and Snowpark processing
+├── requirements.txt                    # Python dependencies
+└── README.md                           # Project documentation
+\`\`\`
+
+---
+
+## ⚡ Pipeline Flow
+
+1️⃣ **Extract:**  
+Load Amazon sales data from local CSV into Snowflake stage using Snowflake Python Connector.
+
+2️⃣ **Transform:**  
+Use **Snowpark** to clean, transform, and enrich the data inside Snowflake.
+
+3️⃣ **Load:**  
+Load the transformed data into analytics-ready Snowflake tables.
+
+4️⃣ **Orchestrate:**  
+The entire workflow is managed by **Airflow (Astro)** for easy scheduling, monitoring, and scaling.
 
 ---
 
 ## 🚀 Setup Instructions
 
-### 1️⃣ Prerequisites
+### 1️⃣ Clone the Repository
 
-- Snowflake account with appropriate role (`SYSADMIN`, `ACCOUNTADMIN`, or pipeline role)
-- **Astro CLI** installed ([Install guide](https://docs.astronomer.io/astro/cli/install-cli))
-- An Astronomer workspace with Airflow deployment
-- Python 3.8+ locally for development
-- Snowflake credentials ready
-
----
-
-### 2️⃣ Snowflake Configuration
-
-- Create a **stage** in Snowflake for file ingestion.
-- Create databases and schemas:
-  - `SOURCE`
-  - `CURATED`
-  - `CONSUMPTION`
-- Add your Snowflake connection in Astro:
-  - Via the **Astro UI** under `Admin -> Connections`, or
-  - In your local `.env` for local development.
+\`\`\`bash
+git clone https://github.com/yourusername/amazon-sales-pipeline.git
+cd amazon-sales-pipeline
+\`\`\`
 
 ---
 
-### 3️⃣ File Structure
+### 2️⃣ Install Astro CLI
 
+Follow official instructions:  
+[Astro CLI Installation](https://docs.astronomer.io/astro/cli/install-cli)
+
+---
+
+### 3️⃣ Configure Snowflake Connection
+
+Add your Snowflake connection to Airflow:
+
+\`\`\`bash
+astro dev init
+\`\`\`
+
+Update your \`airflow_settings.yaml\` or add the connection manually in the Airflow UI:
+
+- **Conn ID:** \`snowflake_conn\`
+- **Conn Type:** \`Snowflake\`
+- **Account:** \`your_account\`
+- **User:** \`your_user\`
+- **Password:** \`your_password\`
+- **Database:** \`your_database\`
+- **Warehouse:** \`your_warehouse\`
+- **Schema:** \`your_schema\`
+
+---
+
+### 4️⃣ Start the Astro Dev Environment
+
+\`\`\`bash
+astro dev start
+\`\`\`
+
+Access Airflow at [http://localhost:8080](http://localhost:8080).
+
+---
+
+### 5️⃣ Trigger the DAG
+
+- Go to the Airflow UI.
+- Enable and trigger the \`amazon_sales_pipeline\` DAG.
+- Monitor task execution and logs.
+
+---
+
+## 🧪 Testing
+
+- **Unit tests** for Snowflake/Snowpark logic can be added using \`pytest\`.
+- Validate the loaded data in Snowflake using SQL Workbench or Snowflake UI.
+
+---
+
+## 📊 Future Enhancements
+
+✅ Add data quality checks using **Great Expectations**  
+✅ Parameterize file paths and table names for flexibility  
+✅ Integrate **dbt for transformation layer**  
+✅ Add **notifications on pipeline failures**  
+
+---
+
+## 🤝 Contributing
+
+PRs are welcome! Please fork the repo and submit pull requests for any improvements.
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 📬 Contact
+
+For queries or collaborations, reach out via [vatsanikhil@gmail.com](mailto:vatsanikhil@gmail.com) or [LinkedIn](https://www.linkedin.com/in/nikhil-vatsa-29960517b/).
+
+---
+
+### ⭐ If you find this helpful, please consider giving the repository a star!
